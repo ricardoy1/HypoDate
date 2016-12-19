@@ -2,20 +2,9 @@
 
 namespace HypoDates
 {
-    using System.Collections.Generic;
-
-    struct HypoDate
+    public static class Program
     {
-        public int Day;
-
-        public int Month;
-
-        public int Year;
-    }
-
-    class Program
-    {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             DisplayMainMenu();
             var work = true;
@@ -24,18 +13,16 @@ namespace HypoDates
                 var dateFrom = ReadDateFrom();
                 var dateTo = ReadDateTo();
 
-                if (ValidateRange(dateFrom, dateTo))
+                if (DateHelper.IsValidRange(dateFrom, dateTo))
                 {
                     PrintReport(dateFrom, dateTo);
+                    work = DoYouWantToContinue();
                 }
-                
-                work = DoYouWantToContinue();
+                else
+                {
+                    Console.WriteLine("The date range is not valid. Please, make sure the date FROM is before (or the same as) the date TO.");
+                }
             }
-        }
-
-        private static bool ValidateRange(HypoDate from, HypoDate to)
-        {
-            return true;
         }
 
         private static HypoDate ReadDateFrom()
@@ -59,7 +46,7 @@ namespace HypoDates
             var date = new HypoDate();
             date.Year = ReadYear();
             date.Month = ReadMonth();
-            date.Day = ReadDay(date.Year, date.Month);
+            date.Day = ReadDay(date.Month, date.Year);
 
             return date;
         }
@@ -92,30 +79,10 @@ namespace HypoDates
             return month;
         }
 
-        private static bool IsLeapYear(int year)
+        private static int ReadDay(int month, int year)
         {
-            return (year % 4 == 0) || ((year % 100 == 0) && (year % 400 == 0));
-        }
+            var maxDay = DateHelper.GetMaxDaysPerMonth(month, year);
 
-        private static int ReadDay(int year, int month)
-        {
-            var daysPerMonth = new Dictionary<int, int>
-                                   {
-                                       { 1, 31 }, 
-                                       { 2, IsLeapYear(year) ? 29 : 28 }, 
-                                       { 3, 31 },
-                                       { 4, 30 },
-                                       { 5, 31 },
-                                       { 6, 30 },
-                                       { 7, 31 },
-                                       { 8, 31 },
-                                       { 9, 30 },
-                                       { 10, 31 },
-                                       { 11, 30 },
-                                       { 12, 31 }
-                                   };
-
-            var maxDay = daysPerMonth[month];
             var day = 0;
 
             do
@@ -136,7 +103,8 @@ namespace HypoDates
 
         private static void PrintReport(HypoDate from, HypoDate to)
         {
-            Console.WriteLine("Report.");
+            var days = DateHelper.GetElapsedDays(from, to);
+            Console.WriteLine("Report: The experiment has taken {0} days.", days);
         }
 
         private static bool DoYouWantToContinue()
