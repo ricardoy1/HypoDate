@@ -81,7 +81,7 @@ namespace HypoDates
 
         private static int ReadDay(int month, int year)
         {
-            var maxDay = DateHelper.GetMaxDaysPerMonth(month, year);
+            var maxDay = DateHelper.GetMonthDays(month, year);
 
             var day = 0;
 
