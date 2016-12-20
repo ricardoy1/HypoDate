@@ -13,7 +13,7 @@ namespace HypoDates
                 var dateFrom = ReadDateFrom();
                 var dateTo = ReadDateTo();
 
-                if (DateHelper.IsValidRange(dateFrom, dateTo))
+                if (IsValidRange(dateFrom, dateTo))
                 {
                     PrintReport(dateFrom, dateTo);
                     work = DoYouWantToContinue();
@@ -43,10 +43,11 @@ namespace HypoDates
 
         private static HypoDate ReadDate()
         {
-            var date = new HypoDate();
-            date.Year = ReadYear();
-            date.Month = ReadMonth();
-            date.Day = ReadDay(date.Month, date.Year);
+            var year = ReadYear();
+            var month = ReadMonth();
+            var day = ReadDay(month, year);
+
+            var date = new HypoDate(year, month, day);
 
             return date;
         }
@@ -81,13 +82,13 @@ namespace HypoDates
 
         private static int ReadDay(int month, int year)
         {
-            var maxDay = DateHelper.GetMonthDays(month, year);
+            var maxDay = HypoDate.GetMaxDaysPerMonthList(year)[month];
 
             var day = 0;
 
             do
             {
-                Console.WriteLine(string.Format("Please, enter a day for the month {0} of the year {1}. A day between 1 and {2}.", month, year, maxDay));
+                Console.WriteLine("Please, enter a day for the month {0} of the year {1}. A day between 1 and {2}.", month, year, maxDay);
                 day = ReadInteger();
             }
             while (day < 1 || day > maxDay);
@@ -103,7 +104,7 @@ namespace HypoDates
 
         private static void PrintReport(HypoDate from, HypoDate to)
         {
-            var days = DateHelper.GetElapsedDays(from, to);
+            var days = HypoDate.GetElapsedDays(from, to);
             Console.WriteLine("Report: The experiment has taken {0} days.", days);
         }
 
@@ -115,8 +116,6 @@ namespace HypoDates
             return answer == UIConstants.Yes;
         }
 
-
-
         /// <summary>
         /// Reads an integer value
         /// </summary>
@@ -126,7 +125,7 @@ namespace HypoDates
             Console.Write(UIConstants.Arrow);
             string value = Console.ReadLine();
             int valueInt;
-            while (!int.TryParse(value, out valueInt))
+            while (!Int32.TryParse(value, out valueInt))
             {
                 Console.WriteLine(UIConstants.PleaseEnterAnIntegerValue);
                 Console.Write(UIConstants.Arrow);
@@ -142,12 +141,17 @@ namespace HypoDates
         private static string ReadYorN()
         {
             string value = Console.ReadLine();
-            while (String.IsNullOrEmpty(value) || (value.ToUpper() != UIConstants.Yes && value.ToUpper() != UIConstants.No))
+            while (string.IsNullOrEmpty(value) || (value.ToUpper() != UIConstants.Yes && value.ToUpper() != UIConstants.No))
             {
                 Console.WriteLine(UIConstants.PleaseEnterYorN);
                 value = Console.ReadLine();
             }
             return value.ToUpper();
+        }
+
+        private static bool IsValidRange(HypoDate from, HypoDate to)
+        {
+            return @from.AbsoluteDays <= to.AbsoluteDays;
         }
     }
 }
